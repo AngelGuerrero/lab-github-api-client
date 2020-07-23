@@ -1,26 +1,46 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import "./App.css";
+import UsersList from "./components/UsersList";
+import InputForm from "./components/InputForm";
+import { searchUsersByName } from "./endpoint";
 
-function App() {
+export default function App() {
+  const [users, setUsers] = useState([]);
+
+  const [inputSearch, setInputSearch] = useState("");
+
+  /**
+   * EVENTS
+   *
+   * Perform events from components using via callback
+   */
+  const performSearch = async () => {
+    const getUsers = await searchUsersByName(inputSearch);
+    setUsers([...getUsers.data]);
+  };
+
+  const handleInputChange = (e) => setInputSearch(e.target.value);
+
+  const handleInputKeyPress = (e) => {
+    if (e.key === "Enter" && inputSearch !== "") {
+      setUsers([]);
+      performSearch();
+    }
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="container">
+        <h1>GitHub search API client</h1>
+
+        <InputForm
+          bindValue={inputSearch}
+          onChangeHandle={handleInputChange}
+          onKeyPressHandle={(e) => handleInputKeyPress(e)}
+        />
+
+        {users.length >= 1 ? <UsersList users={users} /> : null}
+      </div>
     </div>
   );
 }
-
-export default App;
